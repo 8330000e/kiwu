@@ -21,3 +21,6 @@ git commit -m "커밋 메세지"
 git log (커밋목록)
 git checkout 해시코드(16진수 전체 또는 7자리)
 git checkout - (원위치)
+git branch -M main
+git remote add origin 원격리포지토리주소
+git push -u origin main
