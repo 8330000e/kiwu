@@ -1,0 +1,11 @@
+리눅스 명령어
+clear
+
+
+
+
+
+깃 명령어
+git clone 원격리포지토리주소
+git clone 원격리포지토리주소 .
+git log --oneline
