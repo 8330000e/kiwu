@@ -1,7 +1,7 @@
 리눅스 명령어
 clear
-mkdir 폴더이
-
+mkdir 폴더이름
+rm 폴더 또는 파일명
 
 
 
