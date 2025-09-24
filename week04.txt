@@ -5,6 +5,9 @@ touch 파일 파일 파일
 
 깃 명령어
 git log --oneline --graph (git log --graph --oneline)
+git reset --hard HEAD~삭제할커밋개수
+git push -f origin main
+
 
 기타
 .gitignore
