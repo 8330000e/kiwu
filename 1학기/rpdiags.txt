@@ -1,0 +1,7 @@
+Raspberry Pi Diagnostics - version (unknown)
+Wed Apr  2 12:12:52 2025
+
+Test : SD Card Speed Test
+Run 1
+Test aborted
+
