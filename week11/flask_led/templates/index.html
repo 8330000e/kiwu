@@ -4,9 +4,108 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LED 제어</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            color: #333;
+        }
+        .led-container {
+            background: white;
+            padding: 20px;
+            margin: 20px auto;
+            border-radius: 10px;
+            max-width: 500px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .led-status {
+            font-size: 18px;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .on {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .off {
+            background-color: #f44336;
+            color: white;
+        }
+        button {
+            padding: 12px 24px;
+            margin: 5px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-on {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .btn-on:hover {
+            background-color: #45a049;
+        }
+        .btn-off {
+            background-color: #f44336;
+            color: white;
+        }
+        .btn-off:hover {
+            background-color: #da190b;
+        }
+        .btn-all {
+            background-color: #2196F3;
+            color: white;
+            margin-top: 20px;
+        }
+        .btn-all:hover {
+            background-color: #0b7dda;
+        }
+    </style>
 </head>
 <body>
-   <h1>라즈베리파이 LED 제어</h1>
-   
+    <h1>라즈베리파이 LED 제어</h1>
+    
+    <div class="led-container">
+        <h2>LED 1</h2>
+        <div class="led-status {% if states.led1 == 1 %}on{% else %}off{% endif %}">
+            상태: {% if states.led1 == 1 %}켜짐{% else %}꺼짐{% endif %}
+        </div>
+        <a href="{{ url_for('control_led', led_num=1, state=1) }}">
+            <button class="btn-on">켜기</button>
+        </a>
+        <a href="{{ url_for('control_led', led_num=1, state=0) }}">
+            <button class="btn-off">끄기</button>
+        </a>
+    </div>
+    
+    <div class="led-container">
+        <h2>LED 2</h2>
+        <div class="led-status {% if states.led2 == 1 %}on{% else %}off{% endif %}">
+            상태: {% if states.led2 == 1 %}켜짐{% else %}꺼짐{% endif %}
+        </div>
+        <a href="{{ url_for('control_led', led_num=2, state=1) }}">
+            <button class="btn-on">켜기</button>
+        </a>
+        <a href="{{ url_for('control_led', led_num=2, state=0) }}">
+            <button class="btn-off">끄기</button>
+        </a>
+    </div>
+    
+    <div class="led-container">
+        <h2>전체 제어</h2>
+        <a href="{{ url_for('all_leds', state=1) }}">
+            <button class="btn-all">모두 켜기</button>
+        </a>
+        <a href="{{ url_for('all_leds', state=0) }}">
+            <button class="btn-all">모두 끄기</button>
+        </a>
+    </div>
 </body>
 </html>
