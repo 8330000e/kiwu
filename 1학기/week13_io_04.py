@@ -1,37 +1,45 @@
-import tkinter as tk
-import RPi.GPIO as GPIO
+from tkinter import *
+from gpiozero import LED
 
-red_led = 18
-led = False
+# LED 핀 번호 설정 (예: BCM 18번)
+led = LED(18)
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(red_led, GPIO.OUT)
+# tkinter 윈도우 생성
+win = Tk()
+win.title("LED 제어 GUI")
+win.geometry("300x200")
 
-def led_on_off():
-    #print("LED 켜짐")
-    global led
-    if led:
-        lbl_display.config(text="LED 꺼짐")
-        led = False
-        GPIO.output(red_led, 0)
+# LED 상태를 저장할 변수
+led_on = False
+
+# 레이블 생성 (초기 배경: 회색)
+status_label = Label(win,
+        text="LED OFF", bg="gray", fg="white", font=("Arial", 18), width=12, height=2)
+status_label.pack(pady=20)
+
+def toggle_led():
+    global led_on
+    if led_on:
+        led.off()
+        status_label.config(text="LED OFF", bg="gray")
+        led_button.config(text="LED ON")
+        led_on = False
     else:
-        lbl_display.config(text="LED 켜짐")
-        led = True
-        GPIO.output(red_led, 1)
-    
-#def led_off():
-#    lbl_display.config(text="LED 꺼짐")
+        led.on()
+        status_label.config(text="LED ON", bg="red")
+        led_button.config(text="LED OFF")
+        led_on = True
 
-win = tk.Tk() # 윈도우 객체 생성
-win.title("GUI")
-win.geometry("400x200")
+def on_exit():
+    led.off()
+    win.destroy()
 
-btn_led_on_off = tk.Button(win, text="LED ON/OFF", command=led_on_off) # 버튼 객체 생성
-#btn_led_off = tk.Button(win, text="LED OFF", command=led_off)
-lbl_display = tk.Label(win, text="LED DISPLAY") # 라벨 객체 생성
+# LED 제어 버튼
+led_button = Button(win, text="LED ON", command=toggle_led, height=2, width=10)
+led_button.pack(pady=10)
 
-lbl_display.pack()
-btn_led_on_off.pack(fill='x')
-#btn_led_off.pack(fill='x')
+# 종료 버튼
+exit_button = Button(win, text="Exit", command=on_exit, height=2, width=10)
+exit_button.pack(pady=5)
 
 win.mainloop()

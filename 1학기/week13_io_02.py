@@ -21,3 +21,4 @@ while True:
         break
     except Exception as e:
         print(f"예외 발생: {e}")
+
