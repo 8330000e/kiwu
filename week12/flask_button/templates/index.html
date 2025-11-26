@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>반응속도 게임</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+        }
+
+        .status-box {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .status-box.ready {
+            background: #e3f2fd;
+            border: 2px solid #2196F3;
+        }
+
+        .status-box.waiting {
+            background: #fff3e0;
+            border: 2px solid #ff9800;
+        }
+
+        .status-box.measuring {
+            background: #ffebee;
+            border: 2px solid #f44336;
+            animation: pulse 0.5s infinite;
+        }
+
+        .status-box.result {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+        }
+
+        .status-box.early_press {
+            background: #ffcdd2;
+            border: 2px solid #d32f2f;
+        }
+
+        .status-box.timeout {
+            background: #f3e5f5;
+            border: 2px solid #9c27b0;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .status-text {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .reaction-time {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #4caf50;
+            margin: 10px 0;
+        }
+
+        .best-score {
+            background: #fff8e1;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            border: 2px dashed #ffc107;
+        }
+
+        .best-score-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .best-score-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ff9800;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .start-btn {
+            background: #4caf50;
+            color: white;
+        }
+
+        .start-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .reset-btn {
+            background: #f44336;
+            color: white;
+        }
+
+        .reset-btn:hover {
+            background: #da190b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(244, 67, 54, 0.4);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button:disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .info-text {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+
+        .error-message {
+            color: #d32f2f;
+            font-size: 0.95em;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>반응속도 게임</h1>
+        <p class="subtitle">LED가 켜지면 버튼을 최대한 빨리 누르세요!</p>
+
+        <div class="status-box ready" id="statusBox">
+            <div class="status-text" id="statusText">시작 버튼을 눌러주세요</div>
+            <div class="reaction-time" id="reactionTime" style="display: none;"></div>
+        </div>
+
+        <div class="best-score" id="bestScore" style="display: none;">
+            <div class="best-score-label">최고 기록</div>
+            <div class="best-score-value" id="bestScoreValue">-</div>
+        </div>
+
+        <div class="button-group">
+            <button class="start-btn" id="startBtn" onclick="startGame()">게임 시작</button>
+            <button class="reset-btn" id="resetBtn" onclick="resetGame()">다시하기</button>
+        </div>
+
+        <div class="info-text">
+            물리 버튼(GPIO 27)을 눌러 반응속도를 측정하세요.<br>
+            LED가 켜지기 전에 버튼을 누르면 실격입니다!
+        </div>
+
+        <div class="error-message" id="errorMsg"></div>
+    </div>
+
+    <script>
+        let statusInterval;
+
+        function startGame() {
+            fetch('/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('errorMsg').textContent = '';
+                document.getElementById('startBtn').disabled = true;
+                
+                // 상태 모니터링 시작
+                statusInterval = setInterval(updateStatus, 100);
+            })
+            .catch(error => {
+                document.getElementById('errorMsg').textContent = '오류: ' + error.message;
+            });
+        }
+
+        function resetGame() {
+            fetch('/reset', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('errorMsg').textContent = '';
+                clearInterval(statusInterval);
+                updateStatus();
+            })
+            .catch(error => {
+                document.getElementById('errorMsg').textContent = '오류: ' + error.message;
+            });
+        }
+
+        function updateStatus() {
+            fetch('/status')
+            .then(response => response.json())
+            .then(data => {
+                const statusBox = document.getElementById('statusBox');
+                const statusText = document.getElementById('statusText');
+                const reactionTime = document.getElementById('reactionTime');
+                const bestScore = document.getElementById('bestScore');
+                const bestScoreValue = document.getElementById('bestScoreValue');
+
+                // 상태별 박스 스타일 변경
+                statusBox.className = 'status-box ' + data.status;
+
+                // 상태별 메시지 표시
+                switch(data.status) {
+                    case 'ready':
+                        statusText.textContent = '시작 버튼을 눌러주세요';
+                        reactionTime.style.display = 'none';
+                        document.getElementById('startBtn').disabled = false;
+                        break;
+                    
+                    case 'waiting':
+                        statusText.textContent = '준비... 기다리세요!';
+                        reactionTime.style.display = 'none';
+                        break;
+                    
+                    case 'measuring':
+                        statusText.textContent = 'LED 켜짐! 지금 버튼을 누르세요!';
+                        reactionTime.style.display = 'none';
+                        break;
+                    
+                    case 'result':
+                        statusText.textContent = '반응 시간';
+                        reactionTime.textContent = data.reaction_time + ' ms';
+                        reactionTime.style.display = 'block';
+                        document.getElementById('startBtn').disabled = false;
+                        clearInterval(statusInterval);
+                        break;
+                    
+                    case 'early_press':
+                        statusText.textContent = '너무 빨리 눌렀습니다!';
+                        reactionTime.textContent = '실격';
+                        reactionTime.style.color = '#d32f2f';
+                        reactionTime.style.display = 'block';
+                        document.getElementById('startBtn').disabled = false;
+                        clearInterval(statusInterval);
+                        break;
+                    
+                    case 'timeout':
+                        statusText.textContent = '시간 초과!';
+                        reactionTime.textContent = '5초 이상';
+                        reactionTime.style.color = '#9c27b0';
+                        reactionTime.style.display = 'block';
+                        document.getElementById('startBtn').disabled = false;
+                        clearInterval(statusInterval);
+                        break;
+                }
+
+                // 최고 기록 표시
+                if (data.best_score !== null) {
+                    bestScore.style.display = 'block';
+                    bestScoreValue.textContent = data.best_score + ' ms';
+                }
+            })
+            .catch(error => {
+                console.error('상태 업데이트 오류:', error);
+            });
+        }
+
+        // 페이지 로드 시 초기 상태 가져오기
+        updateStatus();
+
+        // 주기적으로 상태 확인 (게임 진행 중이 아닐 때)
+        setInterval(() => {
+            if (!statusInterval) {
+                updateStatus();
+            }
+        }, 2000);
+    </script>
+</body>
+</html>
