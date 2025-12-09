@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>라즈베리파이 센서 제어</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .sensor-data {
+            font-size: 48px;
+            text-align: center;
+            margin: 30px 0;
+            color: #2196F3;
+        }
+        .controls {
+            text-align: center;
+            margin: 30px 0;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-on {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .btn-on:hover {
+            background-color: #45a049;
+        }
+        .btn-off {
+            background-color: #f44336;
+            color: white;
+        }
+        .btn-off:hover {
+            background-color: #da190b;
+        }
+        .status {
+            text-align: center;
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .led-on {
+            background-color: #dff0d8;
+            color: #3c763d;
+        }
+        .led-off {
+            background-color: #f2dede;
+            color: #a94442;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>라즈베리파이 센서 제어 시스템</h1>
+        
+        <div>
+            <h2>현재 거리</h2>
+            <div class="sensor-data" id="distance">측정 중...</div>
+        </div>
+        
+        <div class="controls">
+            <h2> LED 제어</h2>
+            <button class="btn-on" onclick="controlLED('on')">LED 켜기</button>
+            <button class="btn-off" onclick="controlLED('off')">LED 끄기</button>
+        </div>
+        
+        <div class="status" id="status">대기 중...</div>
+    </div>
+
+    <script>
+        // 거리 데이터 업데이트
+        function updateDistance() {
+            fetch('/get_distance')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('distance').textContent = data.distance + ' cm';
+                });
+        }
+        
+        // LED 제어
+        function controlLED(action) {
+            fetch('/led/' + action)
+                .then(response => response.json())
+                .then(data => {
+                    updateStatus();
+                });
+        }
+        
+        // LED 상태 업데이트
+        function updateStatus() {
+            fetch('/get_led_status')
+                .then(response => response.json())
+                .then(data => {
+                    const statusDiv = document.getElementById('status');
+                    if (data.led_on) {
+                        statusDiv.textContent = 'LED 상태: 켜짐';
+                        statusDiv.className = 'status led-on';
+                    } else {
+                        statusDiv.textContent = 'LED 상태: 꺼짐';
+                        statusDiv.className = 'status led-off';
+                    }
+                });
+        }
+        
+        // 주기적으로 데이터 업데이트
+        setInterval(updateDistance, 500);  // 0.5초마다 거리 업데이트
+        setInterval(updateStatus, 1000);   // 1초마다 상태 업데이트
+        
+        // 페이지 로드 시 초기 데이터 가져오기
+        updateDistance();
+        updateStatus();
+    </script>
+</body>
+</html>
